@@ -4,8 +4,9 @@ using System.Text;
 namespace StructureImport;
 
 /// <summary>
-/// Writes a static Ogre binary mesh, <c>[MeshSerializer_v1.8]</c>, the layout the game's own building meshes use (engine
-/// docs/formats/ogre-mesh.md): one submesh with its own vertices (position, normal, UV, tangent with handedness in w) and a triangle list.
+/// Writes an Ogre binary mesh, <c>[MeshSerializer_v1.8]</c>, the layout the game's own building meshes use (engine
+/// docs/formats/ogre-mesh.md): one submesh with its own vertices (position, normal, UV, tangent with handedness in w) and a triangle list; a
+/// worn item's mesh also links a skeleton and gives each vertex its bones (<see cref="MeshSkin"/>).
 /// </summary>
 public static class OgreMeshWriter
 {
@@ -23,7 +24,8 @@ public static class OgreMeshWriter
     /// Chunk ids (Ogre <c>MeshChunkID</c>).
     /// </summary>
     const ushort Header = 0x1000, Mesh = 0x3000, SubMesh = 0x4000, SubMeshOperation = 0x4010, Geometry = 0x5000, VertexDeclaration = 0x5100,
-        VertexElement = 0x5110, VertexBuffer = 0x5200, VertexBufferData = 0x5210, MeshBounds = 0x9000;
+        VertexElement = 0x5110, VertexBuffer = 0x5200, VertexBufferData = 0x5210, BoneAssignment = 0x4100, SkeletonLink = 0x6000,
+        MeshBounds = 0x9000;
 
     /// <summary>
     /// Vertex element types and semantics (Ogre <c>VertexElementType</c>, <c>VertexElementSemantic</c>).
@@ -36,9 +38,9 @@ public static class OgreMeshWriter
     const ushort VertexSize = 48;
 
     /// <summary>
-    /// Writes <paramref name="mesh"/> with its <paramref name="tangents"/> to <paramref name="path"/>.
+    /// Writes <paramref name="mesh"/> with its <paramref name="tangents"/> to <paramref name="path"/>, skinned by <paramref name="skin"/> when given.
     /// </summary>
-    public static void Write(SurfaceMesh mesh, Vector4[] tangents, string path)
+    public static void Write(SurfaceMesh mesh, Vector4[] tangents, string path, MeshSkin? skin = null)
     {
         using var stream = File.Create(path);
         using var w = new BinaryWriter(stream, Encoding.UTF8);
@@ -46,16 +48,18 @@ public static class OgreMeshWriter
         WriteString(w, Version);
         Chunk(w, Mesh, () =>
         {
-            w.Write(false); // not skeletally animated
-            Chunk(w, SubMesh, () => WriteSubMesh(w, mesh, tangents));
+            w.Write(skin is not null); // skeletally animated
+            Chunk(w, SubMesh, () => WriteSubMesh(w, mesh, tangents, skin));
+            if (skin is not null) Chunk(w, SkeletonLink, () => WriteString(w, skin.Skeleton));
             Chunk(w, MeshBounds, () => WriteBounds(w, mesh));
         });
     }
 
     /// <summary>
-    /// The submesh: material, own vertices, indices (16-bit while the vertices fit), geometry, then the triangle-list operation.
+    /// The submesh: material, own vertices, indices (16-bit while the vertices fit), geometry, the triangle-list operation, then the bone
+    /// assignments of a skinned mesh.
     /// </summary>
-    static void WriteSubMesh(BinaryWriter w, SurfaceMesh mesh, Vector4[] tangents)
+    static void WriteSubMesh(BinaryWriter w, SurfaceMesh mesh, Vector4[] tangents, MeshSkin? skin)
     {
         WriteString(w, MaterialName);
         w.Write(false); // own vertices, not shared
@@ -70,6 +74,28 @@ public static class OgreMeshWriter
 
         Chunk(w, Geometry, () => WriteGeometry(w, mesh, tangents));
         Chunk(w, SubMeshOperation, () => w.Write((ushort)4)); // triangle list
+        if (skin is not null) WriteBoneAssignments(w, skin);
+    }
+
+    /// <summary>
+    /// One assignment per vertex and bone of non-zero weight.
+    /// </summary>
+    static void WriteBoneAssignments(BinaryWriter w, MeshSkin skin)
+    {
+        for (int v = 0; v < skin.Weights.Length; v++)
+        {
+            foreach (var (bone, weight) in skin.Weights[v])
+            {
+                if (weight <= 0) continue;
+
+                Chunk(w, BoneAssignment, () =>
+                {
+                    w.Write((uint)v);
+                    w.Write(bone);
+                    w.Write(weight);
+                });
+            }
+        }
     }
 
     /// <summary>
@@ -164,3 +190,8 @@ public static class OgreMeshWriter
         w.Write(v.Z);
     }
 }
+
+/// <summary>
+/// A skinned mesh's skeleton (its file name, which the mesh links) and each vertex's bone handles and weights (summing to 1).
+/// </summary>
+public sealed record MeshSkin(string Skeleton, (ushort Bone, float Weight)[][] Weights);

@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>ExampleMod.Tests</RootNamespace>
+    <RootNamespace>WayOfTheFist.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="$(MeitouEngineDir)src/Meitou.Game/Meitou.Game.csproj" />
-    <ProjectReference Include="../ExampleMod/ExampleMod.csproj" />
+    <ProjectReference Include="../WayOfTheFist/WayOfTheFist.csproj" />
   </ItemGroup>
 
 </Project>

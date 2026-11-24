@@ -65,5 +65,8 @@ A `needs-release` label means the merged change only reaches players after promo
 
 ## This repo
 
-This is the template. A repo created from it keeps this file and replaces this section with its own notes: the mod's folder and slug,
-the frameworks it locks, its docs.
+- Way of the Fist (`way.of.the.fist`, folder `WayOfTheFist/`, slug `way-of-the-fist`): fist weapons, records added in the data phase
+  (`WayOfTheFist.mod` holds only the item models' materials). No frameworks: `engine` pins an upstream tag (a nightly one until a release has
+  the data phase). Docs `docs/way-of-the-fist.md`.
+- The gauntlets' look is `WayOfTheFist/ItemModels/*.glb` with `"worn"` set (docs/structures.md "Worn on the hands"); the engine draws it only
+  with worn unarmed weapons (MeitouClientSandbox `fork`, not yet upstream).
