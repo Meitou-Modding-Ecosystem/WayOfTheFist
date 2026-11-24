@@ -1,0 +1,9 @@
+<Project>
+
+  <!-- The same submodule check as Directory.Build.targets, for a build of the solution: its restore reaches the engine's projects first. -->
+  <Target Name="MeitouCheckSubmodules" BeforeTargets="Restore;_LoadRestoreGraphEntryPoints;Build"
+    Condition="!Exists('$(MSBuildThisFileDirectory)engine/Directory.Build.props') Or !Exists('$(MSBuildThisFileDirectory)build/gutenstructure/msbuild/Meitou.Frameworks.targets')">
+    <Error Code="MEITOU001" Text="This clone is missing its git submodules (engine, build/gutenstructure). In the repository's folder run: git submodule update --init --recursive" />
+  </Target>
+
+</Project>

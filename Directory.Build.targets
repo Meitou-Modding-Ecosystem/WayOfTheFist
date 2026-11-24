@@ -1,0 +1,14 @@
+<Project>
+
+  <!-- Frameworks named in meitou.lock.json: downloaded, hash-checked and referenced (GutenStructure docs/framework-lock.md). -->
+  <Import Project="build/gutenstructure/msbuild/Meitou.Frameworks.targets"
+    Condition="Exists('$(MSBuildThisFileDirectory)build/gutenstructure/msbuild/Meitou.Frameworks.targets')" />
+
+  <!-- The engine and GutenStructure are git submodules; a clone made without them (or a pull that added one) has empty folders. Fail first, and say
+       how to fix it, before restore and build report missing projects and a missing TargetFramework. -->
+  <Target Name="MeitouCheckSubmodules" BeforeTargets="Restore;_GenerateRestoreProjectSpec;_CheckForInvalidConfigurationAndPlatform"
+    Condition="!Exists('$(MSBuildThisFileDirectory)engine/Directory.Build.props') Or !Exists('$(MSBuildThisFileDirectory)build/gutenstructure/msbuild/Meitou.Frameworks.targets')">
+    <Error Code="MEITOU001" Text="This clone is missing its git submodules (engine, build/gutenstructure). In the repository's folder run: git submodule update --init --recursive" />
+  </Target>
+
+</Project>

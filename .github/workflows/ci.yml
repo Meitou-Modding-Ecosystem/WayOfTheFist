@@ -1,0 +1,81 @@
+name: CI
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [beta, main, release]
+  push:
+    branches: [beta, main, release]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/build-dotnet.yml@fc0507fb376b8b8ba732795c7032c9cd81464a58
+  play:
+    name: Play deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 11.0.x
+      - name: Build Play into a stand-in mods folder and check what it deployed
+        run: |
+          shopt -s nullglob # a repo with no mod yet (a library) deploys nothing
+          mods="$RUNNER_TEMP/mods"
+          mkdir -p "$mods"
+          dotnet build Play/Play.csproj -p:KenshiModsDir="$mods/"
+          for mod in */meitou.json; do
+            name=$(dirname "$mod")
+            files="$name.dll $name.pdb meitou.json"
+            # A generated .mod needs the installed game, which CI lacks; a mod without a generator gets an empty one.
+            test -f "$name.Data/$name.Data.csproj" || files="$files $name.mod"
+            for file in $files; do
+              test -f "$mods/$name/$file" || { echo "missing $mods/$name/$file"; ls -R "$mods"; exit 1; }
+            done
+          done
+          # Each locked framework's release folder is deployed beside the mods.
+          for name in $(python3 -c 'import json; print(" ".join(f["folder"] for f in json.load(open("meitou.lock.json"))["frameworks"]))'); do
+            for file in "$name.dll" meitou.json; do
+              test -f "$mods/$name/$file" || { echo "missing $mods/$name/$file"; ls -R "$mods"; exit 1; }
+            done
+          done
+  engine-references:
+    # Each mod as built only calls engine members the newest Meitou release still has (tools/refcheck.sh, docs/refcheck.md): a signature
+    # changed in a release compiles fine but fails at run time.
+    name: Engine references
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 11.0.x
+      - name: Check engine references against the newest Meitou release
+        run: tools/refcheck.sh
+  release-readiness:
+    name: Release readiness
+    if: always()
+    needs: [build, play, engine-references]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require all prerequisite checks
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+        run: |
+          python - <<'PYCODE'
+          import os
+          results = os.environ['RESULTS'].split(',')
+          if not results or any(result != 'success' for result in results):
+              raise SystemExit('A required check failed, was cancelled, or was skipped')
+          PYCODE

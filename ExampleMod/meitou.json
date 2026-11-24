@@ -1,0 +1,8 @@
+{
+  "id": "example.mod",
+  "version": "0.1.0",
+  "apiVersion": 2,
+  "gameVersion": ">=0.20.1",
+  "assemblies": ["ExampleMod.dll"],
+  "entry": "ExampleMod.ExampleModEntry"
+}

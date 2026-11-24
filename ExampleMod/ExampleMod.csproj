@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The template's mod: rename the folder, this file, the assembly and the namespace to your mod's name (README "Use this template").
+    Built against the game's assemblies, never copied: the game loads them.
+  -->
+
+  <PropertyGroup>
+    <AssemblyName>ExampleMod</AssemblyName>
+    <RootNamespace>ExampleMod</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(MeitouEngineDir)src/Meitou.Core/Meitou.Core.csproj" Private="false" />
+    <ProjectReference Include="$(MeitouEngineDir)src/Meitou.Data/Meitou.Data.csproj" Private="false" />
+    <ProjectReference Include="$(MeitouEngineDir)src/Meitou.Simulation/Meitou.Simulation.csproj" Private="false" />
+    <ProjectReference Include="$(MeitouEngineDir)src/Meitou.Game/Meitou.Game.csproj" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="meitou.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
