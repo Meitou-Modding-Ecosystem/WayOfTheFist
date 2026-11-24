@@ -74,6 +74,26 @@ with the names to use.
   MATERIAL_SPECS_CLOTHING its `material` names (engine `docs/formats/runtime-materials.md` "Callers", `WorldObjectLayout.ItemMesh`).
 - The inventory icon is drawn from the model unless the record sets `auto icon image` false and its own `icon`.
 
+### Worn on the hands
+
+An item model with `worn` set also becomes a mesh skinned to the body's hand and forearm bones: knuckles, claws or gauntlets that a WEAPON
+of `skill category` 5 (Unarmed) shows on the arms whether or not the character fights (engine `docs/characters.md` "Worn unarmed weapons").
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `worn` | none | `hands` (one copy on each), `right hand` or `left hand` |
+| `grip` | `0.5` | where the palm sits along the model's length, 0 at its fist end and 1 at its arm opening |
+
+- Model it lying along X: what sticks out past the knuckles towards -X, the arm opening towards +X, the back of the hand up (+Y). `yaw`
+  turns it first.
+- The import writes `<mod>_<model>_worn.mesh` (the man's skeleton) and `<mod>_<model>_worn_female.mesh` (the woman's) beside the plain mesh.
+  Set the WEAPON's `mesh` and `mesh female` to them and keep `ground mesh` the plain one.
+- It reads the game's `male_skeleton.skeleton` and `female_skeleton.skeleton`, from `KENSHI_PATH` or the folder above the mods folder. Without
+  them (CI's stand-in mods folder) it skips the worn meshes and says so in the log.
+- Each copy sits in its hand bone's frame, so the model's top stays on the back of both hands (the left one is the right turned about the arm,
+  not mirrored). The palm's centre is 0.7 units past the wrist (**Observed**: `human_male.mesh`'s hand reaches 1.8 units); vertices pass from
+  the forearm's weight to the hand's within 0.3 units of the wrist.
+
 ## Getting a good model
 
 - Ask Meshy or Hi3D for a PBR-textured model and download it as GLB. A few tens of thousands of triangles is plenty; the log flags a model

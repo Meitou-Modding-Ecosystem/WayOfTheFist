@@ -30,6 +30,22 @@ public sealed class ItemSpec
     public int TextureSize { get; set; } = 1024;
 
     /// <summary>
+    /// Worn on the body's hand bones (docs/structures.md "Worn on the hands"): <c>hands</c>, <c>right hand</c> or <c>left hand</c>; null for an
+    /// item that is only held or lies on the ground.
+    /// </summary>
+    public string? Worn { get; set; }
+
+    /// <summary>
+    /// For a worn item: where the palm sits along the model's length, 0 at its fist end (-X) and 1 at its arm opening (+X).
+    /// </summary>
+    public float Grip { get; set; } = 0.5f;
+
+    /// <summary>
+    /// The values <see cref="Worn"/> takes.
+    /// </summary>
+    public static readonly string[] WornValues = ["hands", "right hand", "left hand"];
+
+    /// <summary>
     /// The JSON options: camelCase names, comments and trailing commas allowed, unknown names refused (a typo would else go unnoticed).
     /// </summary>
     static readonly JsonSerializerOptions s_json = new()
@@ -67,6 +83,8 @@ public sealed class ItemSpec
     {
         string? problem = Size is { } s && (!float.IsFinite(s) || s <= 0) ? "size must be a number above 0"
             : !float.IsFinite(Yaw) ? "yaw must be a number"
+            : Worn is not null && !WornValues.Contains(Worn) ? $"worn must be one of {string.Join(", ", WornValues)}"
+            : !(Grip is >= 0 and <= 1) ? "grip must be a number from 0 to 1"
             : TextureSize is < 4 or > StructureSpec.MaxTextureSize || (TextureSize & (TextureSize - 1)) != 0
                 ? $"textureSize must be a power of two from 4 to {StructureSpec.MaxTextureSize}"
             : null;

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Meitou.Modding;
 
-namespace ExampleMod.Tests;
+namespace WayOfTheFist.Tests;
 
 /// <summary>
 /// The manifest and the code agree: the loader refuses a mod whose entry is missing or whose id differs from what its code registers under.
@@ -14,10 +14,10 @@ public sealed class ManifestTests
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "meitou.json")));
         var root = manifest.RootElement;
 
-        var entry = typeof(ExampleModEntry).Assembly.GetType(root.GetProperty("entry").GetString()!);
+        var entry = typeof(WayOfTheFistMod).Assembly.GetType(root.GetProperty("entry").GetString()!);
 
         Assert.NotNull(entry);
         Assert.True(typeof(IMod).IsAssignableFrom(entry));
-        Assert.Equal(ExampleModEntry.Id, root.GetProperty("id").GetString());
+        Assert.Equal(WayOfTheFistMod.Id, root.GetProperty("id").GetString());
     }
 }

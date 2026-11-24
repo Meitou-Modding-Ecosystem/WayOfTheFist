@@ -1,13 +1,13 @@
 # Releases the mod: every push to release reads the version from its meitou.json and, unless the tag <slug>-v<version> exists,
 # creates that tag at the release head and publishes <MOD_FOLDER>-<version>.zip (with its SHA-256) holding the folder to drop into
 # Kenshi/mods/, all in one run. A hand-pushed tag (tools/Tag-Release.ps1) does the same as a fallback. Packaging: GutenStructure
-# package-meitou-mod.yml (pinned). Rename ExampleMod / example-mod below with the mod (README "Use this template").
+# package-meitou-mod.yml (pinned).
 name: Release
 
 on:
   push:
     branches: [release]
-    tags: ["example-mod-v*"]
+    tags: ["way-of-the-fist-v*"]
 
 permissions:
   contents: read
@@ -24,9 +24,9 @@ jobs:
       contents: write
     uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@18f67b9121d10d27530bb45916e338f4e159eaa1
     with:
-      mod-folder: ExampleMod
-      slug: example-mod
+      mod-folder: WayOfTheFist
+      slug: way-of-the-fist
       channel: release
       test-project: .
-      # true for a code mod without data: the zip gets an empty ExampleMod.mod. false when <Mod>.Data generates one.
+      # true for a code mod without data: the zip gets an empty WayOfTheFist.mod. false when <Mod>.Data generates one.
       empty-data-mod: true

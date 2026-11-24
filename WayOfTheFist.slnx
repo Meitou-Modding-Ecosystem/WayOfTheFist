@@ -1,8 +1,8 @@
 <Solution>
   <Project Path="Play/Play.csproj" />
-  <Folder Name="/ExampleMod/">
-    <Project Path="ExampleMod/ExampleMod.csproj" />
-    <Project Path="ExampleMod.Tests/ExampleMod.Tests.csproj" />
+  <Folder Name="/WayOfTheFist/">
+    <Project Path="WayOfTheFist/WayOfTheFist.csproj" />
+    <Project Path="WayOfTheFist.Tests/WayOfTheFist.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/StructureImport/StructureImport.csproj" />

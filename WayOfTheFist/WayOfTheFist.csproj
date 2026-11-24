@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    The template's mod: rename the folder, this file, the assembly and the namespace to your mod's name (README "Use this template").
+    The Way of the Fist mod (docs/way-of-the-fist.md).
     Built against the game's assemblies, never copied: the game loads them.
   -->
 
   <PropertyGroup>
-    <AssemblyName>ExampleMod</AssemblyName>
-    <RootNamespace>ExampleMod</RootNamespace>
+    <AssemblyName>WayOfTheFist</AssemblyName>
+    <RootNamespace>WayOfTheFist</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ The commands use these values. Set them once per PowerShell window, with your mo
 first release version:
 
 ```powershell
-$Mod = "ExampleMod"
+$Mod = "WayOfTheFist"
 $Version = "0.1.0"
 $Work = "$HOME\Downloads\$Mod-Workshop"
 $Watcher = "$env:LOCALAPPDATA\WorkshopWatcher\WorkshopWatcher.ps1"

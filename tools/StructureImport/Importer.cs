@@ -40,7 +40,7 @@ public static class Importer
         var records = new List<FcsRecord>();
         var log = new List<string>();
         ImportStructures(models, assets, modName, records, log);
-        ImportItems(ItemFolderBeside(models), assets, modName, records, log);
+        ImportItems(ItemFolderBeside(models), assets, modName, WornItem.FindGame(mod), records, log);
         ModFileMerger.Merge(Path.Combine(mod, modName + ".mod"), records);
         return log;
     }
@@ -71,9 +71,10 @@ public static class Importer
     }
 
     /// <summary>
-    /// Imports the item models of a folder (none when it is missing), adding their records and log lines.
+    /// Imports the item models of a folder (none when it is missing), adding their records and log lines; worn ones are skinned to the
+    /// skeletons of the game in <paramref name="game"/> (null: not found).
     /// </summary>
-    static void ImportItems(string folder, string assets, string modName, List<FcsRecord> records, List<string> log)
+    static void ImportItems(string folder, string assets, string modName, string? game, List<FcsRecord> records, List<string> log)
     {
         if (!Directory.Exists(folder)) return;
 
@@ -81,7 +82,7 @@ public static class Importer
         foreach (string model in ModelFiles(folder))
         {
             var block = new RecordIds(ids.BlockOf(Path.GetFileNameWithoutExtension(model)), modName + ".mod", RecordIds.ItemBase);
-            var (record, line) = Named(model, () => ImportItem(model, assets, FilePrefix(modName, model), block));
+            var (record, line) = Named(model, () => ImportItem(model, assets, FilePrefix(modName, model), block, game));
             records.Add(record);
             log.Add("Item " + line);
         }
@@ -136,9 +137,10 @@ public static class Importer
 
     /// <summary>
     /// Imports one item model: its mesh (on its base, centred, as the game's item meshes are) and textures into <paramref name="assets"/>, its
-    /// MATERIAL_SPECS_CLOTHING with the id from <paramref name="ids"/>, and a log line naming what the mod's ITEM must point at.
+    /// MATERIAL_SPECS_CLOTHING with the id from <paramref name="ids"/>, the worn meshes of a worn item, and a log line naming what the mod's ITEM
+    /// must point at.
     /// </summary>
-    static (FcsRecord Record, string Line) ImportItem(string model, string assets, string prefix, RecordIds ids)
+    static (FcsRecord Record, string Line) ImportItem(string model, string assets, string prefix, RecordIds ids, string? game)
     {
         var spec = ItemSpec.ForModel(model);
         var meshes = GlbScene.Load(model);
@@ -156,7 +158,30 @@ public static class Importer
         float longest = MathF.Max(max.X - min.X, MathF.Max(max.Y - min.Y, max.Z - min.Z)) / MeshMath.UnitsPerMetre;
         string line = $"{Path.GetFileName(model)} -> mesh {files.Mesh}, material {record.StringId}, {mesh.Indices.Count / 3} triangles, "
             + $"{longest:0.###} m long";
+        if (spec.Worn is { } worn) line += WriteWorn(mesh, spec, worn, assets, prefix, game);
         return (record, line);
+    }
+
+    /// <summary>
+    /// Writes a worn item's meshes on the man's and the woman's skeleton (<c>&lt;prefix&gt;_worn.mesh</c>, <c>&lt;prefix&gt;_worn_female.mesh</c>);
+    /// returns the log line's ending, which says why when they could not be written.
+    /// </summary>
+    static string WriteWorn(SurfaceMesh mesh, ItemSpec spec, string worn, string assets, string prefix, string? game)
+    {
+        if (game is null) return $"; worn on {worn}: not written, the game's skeletons were not found (set KENSHI_PATH)";
+
+        var names = new List<string>();
+        foreach (var (skeletonName, suffix) in new[] { (WornItem.MaleSkeleton, "_worn"), (WornItem.FemaleSkeleton, "_worn_female") })
+        {
+            string skeleton = WornItem.FindFile(game, skeletonName)
+                ?? throw new FileNotFoundException($"No {skeletonName} under {Path.Combine(game, "data")}");
+            var (wornMesh, skin) = WornItem.Wear(mesh, worn, spec.Grip, skeleton);
+            string name = prefix + suffix + ".mesh";
+            OgreMeshWriter.Write(wornMesh, MeshMath.Tangents(wornMesh), Path.Combine(assets, name), skin);
+            names.Add(name);
+        }
+
+        return $"; worn on {worn}: mesh {names[0]}, mesh female {names[1]}";
     }
 
     /// <summary>

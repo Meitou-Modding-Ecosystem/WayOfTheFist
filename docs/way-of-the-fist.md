@@ -1,0 +1,21 @@
+# Way of the Fist
+
+Fist weapons: items equipped in a weapon slot that fight as fists (Martial Arts) and are worn on the hands.
+
+## Beak Gauntlets
+
+| | |
+| --- | --- |
+| Record | WEAPON `1-WayOfTheFist.mod`, added in the data phase (`BeakGauntlets`) |
+| Copied from | the game's `FISTS`: `skill category` 5, `length` 18, `indoors mod` 8 |
+| Damage | cut x1.4, blunt x0.6, bleed x0.6, armour penetration 0.1, robots x0.8 |
+| Item | value 3000, 4 kg, 2 x 4 inventory squares |
+| Sold by | the Ronin weapon smiths (`weapon vendor Ronin`, `1026-gamedata.base`), with their manufacturers |
+| Model | `WayOfTheFist/ItemModels/beak-gauntlet.glb`, 0.55 m, one on each hand ([structures](structures.md#worn-on-the-hands)) |
+
+- Equipped at the hip or back it makes the wearer fight unarmed with the gauntlets' multipliers, and shows on both forearms and hands whether
+  or not they fight (engine `docs/characters.md` "Worn unarmed weapons").
+- The look needs an engine with worn unarmed weapons (MeitouClientSandbox `fork`; not yet in an upstream release). On an engine without it
+  the gauntlets still fight as fists but hang at the hip.
+- The meshes and material come from the item model import on deploy, which reads the game's skeletons. A record without the imported material
+  (`950000-WayOfTheFist.mod` missing) keeps the fists' blank look.

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace ExampleMod.Tests;
+namespace WayOfTheFist.Tests;
 
 /// <summary>
 /// The README's <c>## Numbers</c> section (GutenStructure docs/numbers.md): each task type and dialogue code the mod claims lies inside the mod's
