@@ -71,9 +71,15 @@ public sealed class StructureIds
     public const string FileName = "ids.json";
 
     /// <summary>
-    /// The JSON layout: indented, camelCase.
+    /// The JSON layout: indented, camelCase, LF line breaks on every OS (System.Text.Json otherwise breaks lines with the OS's newline, CRLF on
+    /// Windows, so ids.json flipped between imports on Windows and Linux).
     /// </summary>
-    static readonly JsonSerializerOptions s_json = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    static readonly JsonSerializerOptions s_json = new()
+    {
+        WriteIndented = true,
+        NewLine = "\n",
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
 
     /// <summary>
     /// The block of each model, by file name without extension.
