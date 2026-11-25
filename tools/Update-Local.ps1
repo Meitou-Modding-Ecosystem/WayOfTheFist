@@ -9,8 +9,8 @@
       1. Switches to the branch (default beta) and pulls it (fast-forward only).
       2. Syncs and updates every submodule (engine, build/gutenstructure) to the commits this branch pins.
       3. Checks each submodule's checked-out commit against its pin and prints the engine version.
-      4. Warns about overrides that make the build use a different engine: MeitouEngineDir (in Meitou.user.props,
-         MeitouMods.user.props or the environment) and MeitouFrameworkSources.
+      4. Warns about overrides that make the build use a different engine: MeitouEngineDir (in Meitou.user.props or
+         MeitouMods.user.props) and MeitouFrameworkSources, and notes fork engine mode (tools\Use-ForkEngine.ps1).
       5. With -Clean, deletes the git-ignored bin and obj folders, so no stale engine build is reused.
       6. With -Build, runs dotnet build.
 
@@ -150,7 +150,7 @@ function Test-Overrides([string]$Root) {
 
     if ($env:MeitouEngineDir) {
         $found = $true
-        Test-EngineDir $env:MeitouEngineDir $ownEngine 'the MeitouEngineDir environment variable'
+        Write-Note "Fork engine mode is on: builds and Play use $env:MeitouEngineDir, not this repo's engine pin. Turn it off with tools\Use-ForkEngine.ps1 -Off."
     }
 
     if (-not $found) { Write-Ok "No overrides: the build uses this repo's engine and meitou.lock.json" }
