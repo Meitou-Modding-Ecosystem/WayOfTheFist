@@ -16,13 +16,13 @@ jobs:
   release-gate:
     permissions:
       contents: read
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/release-gate.yml@35828a0aa8752f1fc56a9dbdd35b330bf3520ab2
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/release-gate.yml@b8fc4ac1481cd27e036fdd5ed8074ea826dae701
 
   release:
     needs: release-gate
     permissions:
       contents: write
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@35828a0aa8752f1fc56a9dbdd35b330bf3520ab2
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@b8fc4ac1481cd27e036fdd5ed8074ea826dae701
     with:
       mod-folder: WayOfTheFist
       slug: way-of-the-fist

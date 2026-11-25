@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/build-dotnet.yml@fc0507fb376b8b8ba732795c7032c9cd81464a58
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/build-dotnet.yml@b8fc4ac1481cd27e036fdd5ed8074ea826dae701
   play:
     name: Play deploy
     runs-on: ubuntu-latest
@@ -72,9 +72,9 @@ jobs:
         if not required or any(results[key]['result'] != 'success' for key in required):\n    raise SystemExit('A prerequisite\
         \ failed, was cancelled, or was skipped')\nPYCODE\n"
   upstream-compatibility:
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/upstream-compatibility.yml@35828a0aa8752f1fc56a9dbdd35b330bf3520ab2
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/upstream-compatibility.yml@b8fc4ac1481cd27e036fdd5ed8074ea826dae701
   package-validation:
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-validation.yml@35828a0aa8752f1fc56a9dbdd35b330bf3520ab2
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-validation.yml@b8fc4ac1481cd27e036fdd5ed8074ea826dae701
     with:
       mod-folder: WayOfTheFist
       empty-data-mod: true
