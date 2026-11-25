@@ -8,7 +8,7 @@ MeitouModTemplate and copy it to the others. Procedures (local build broken, new
 ## Branches and PRs
 
 - Work on your own branch, open a PR into `beta`, merge it yourself once CI is green. Never push to `beta`, `main` or `release`.
-- `beta` -> `main` -> `release` are promotion PRs. Main and release require two approvals including code owners. Open them, and push release tags, only when the
+- `beta` -> `main` -> `release` are promotion PRs. Main and release require one approval including code owners ([GutenStructure docs/branch-policy.md](https://github.com/TheIvoryDisaster/GutenStructure/blob/beta/docs/branch-policy.md)). Open them, and push release tags, only when the
   repo owner asks.
 - One piece of work per PR, with a description that says what changed and why. Tests in this repo need no permission: add them.
 
@@ -45,7 +45,7 @@ bite:
 
 | Workflow | What it does | What you do |
 | --- | --- | --- |
-| `ci.yml` | Development readiness requires builds, tests and Play deploy against the pin. Release readiness adds upstream compatibility and package validation on release PRs. | beta needs zero approvals; main/release need two including code owners |
+| `ci.yml` | Development readiness requires builds, tests and Play deploy against the pin. Release readiness adds upstream compatibility and package validation on release PRs. | beta needs zero approvals; main/release need one including code owners |
 | `meitou-compat.yml` | daily RefCheck against the newest Meitou release, nightly and each floor; one `meitou-compat` issue; opens `Meitou: Admit <tag>` cap-lift PRs | a missing member is a port (skill); a nightly-only problem is a warning |
 | `engine-update.yml` | without frameworks: moves `engine`, `Directory.Build.rsp` and each `gameVersion` floor to the newest upstream Meitou tag, PR into `beta`, merges when green | a red PR is a port: fix it in that PR (skill) |
 | `framework-update.yml` | moves `meitou.lock.json` (and `engine`, rsp and floors) to new framework releases, PR into `beta` | a red PR is a regression report: fix it in that PR |
