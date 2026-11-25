@@ -83,6 +83,7 @@ of `skill category` 5 (Unarmed) shows on the arms whether or not the character f
 | --- | --- | --- |
 | `worn` | none | `hands` (one copy on each), `right hand` or `left hand` |
 | `grip` | `0.5` | where the palm sits along the model's length, 0 at its fist end and 1 at its arm opening |
+| `follows` | `hand` | `hand`: the part past the wrist bends with it (knuckles, claws). `forearm`: the whole model stays on the arm's line when the wrist bends (a blade along the arm, as in a palm strike) |
 
 - Model it lying along X: what sticks out past the knuckles towards -X, the arm opening towards +X, the back of the hand up (+Y). `yaw`
   turns it first.
@@ -92,7 +93,7 @@ of `skill category` 5 (Unarmed) shows on the arms whether or not the character f
   them (CI's stand-in mods folder) it skips the worn meshes and says so in the log.
 - Each copy sits in its hand bone's frame, so the model's top stays on the back of both hands (the left one is the right turned about the arm,
   not mirrored). The palm's centre is 0.7 units past the wrist (**Observed**: `human_male.mesh`'s hand reaches 1.8 units); vertices pass from
-  the forearm's weight to the hand's within 0.3 units of the wrist.
+  the forearm's weight to the hand's within 0.3 units of the wrist (`follows: forearm`: all on the forearm).
 
 ### Inventory icon
 
