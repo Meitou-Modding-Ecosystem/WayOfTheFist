@@ -8,7 +8,7 @@ MeitouModTemplate and copy it to the others. Procedures (local build broken, new
 ## Branches and PRs
 
 - Work on your own branch, open a PR into `beta`, merge it yourself once CI is green. Never push to `beta`, `main` or `release`.
-- `beta` -> `main` -> `release` are promotion PRs that need a super-maintainer's approval. Open them, and push release tags, only when the
+- `beta` -> `main` -> `release` are promotion PRs. Main and release require two approvals including code owners. Open them, and push release tags, only when the
   repo owner asks.
 - One piece of work per PR, with a description that says what changed and why. Tests in this repo need no permission: add them.
 
@@ -19,7 +19,7 @@ MeitouModTemplate and copy it to the others. Procedures (local build broken, new
   (VlcekM/MeitouClient) releases them and the pin moves.
 - What `engine` is pinned to:
   - with frameworks in `meitou.lock.json`: the locked frameworks' engine commit (framework-update moves both together);
-  - without: the commit of an upstream release tag `vX.Y.Z`, never a fork or development commit.
+  - without: an immutable sandbox engine commit for development, or an upstream release commit. Production requires upstream source and released-engine compatibility.
 - The pin, `Directory.Build.rsp` and each `gameVersion` floor move together (Versioning below).
 - `git pull` does not move submodules. After every pull, and whenever a build can't find engine types, run
   `powershell -ExecutionPolicy Bypass -File tools\Update-Local.ps1 -Clean -Build` (docs/local-development.md, "Keep clones current").
@@ -44,7 +44,7 @@ bite:
 
 | Workflow | What it does | What you do |
 | --- | --- | --- |
-| `ci.yml` | build, tests, Engine references (RefCheck), Play deploy on every PR | merge only when green |
+| `ci.yml` | Development readiness requires builds, tests and Play deploy against the pin. Release readiness adds upstream compatibility and package validation on release PRs. | beta needs zero approvals; main/release need two including code owners |
 | `meitou-compat.yml` | daily RefCheck against the newest Meitou release, nightly and each floor; one `meitou-compat` issue; opens `Meitou: Admit <tag>` cap-lift PRs | a missing member is a port (skill); a nightly-only problem is a warning |
 | `framework-update.yml` | moves `meitou.lock.json` (and `engine`) to new framework releases, PR into `beta` | a red PR is a regression report: fix it in that PR |
 | `release.yml` | on each merge into `release`, tags it `<slug>-v<version>` from `meitou.json` and publishes `<Mod>-<version>.zip` via GutenStructure (skips an existing tag) | bump the version to release; `tools\Tag-Release.ps1` only as a fallback when asked |
