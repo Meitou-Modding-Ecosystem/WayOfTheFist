@@ -19,7 +19,7 @@ jobs:
     if: github.ref == 'refs/heads/beta'
     permissions:
       contents: write
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@29fefc59172e5427e6bbf7ef5ba1741f7fe64daa
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@5dc76952e11014b8c75699f474734c4e444eb5ea
     with:
       mod-folder: WayOfTheFist
       slug: way-of-the-fist
