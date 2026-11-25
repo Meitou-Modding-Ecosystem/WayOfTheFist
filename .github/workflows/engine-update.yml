@@ -18,6 +18,6 @@ jobs:
       contents: write
       pull-requests: write
       actions: write
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/engine-update.yml@4d2e94d63d3aa460a57b98b7a191ba60c740a459
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/engine-update.yml@b4fd069fa6a520f158bfdaf186be9cb3058236ce
     with:
-      tools-ref: 4d2e94d63d3aa460a57b98b7a191ba60c740a459
+      tools-ref: b4fd069fa6a520f158bfdaf186be9cb3058236ce
