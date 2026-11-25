@@ -13,6 +13,7 @@ $Mod = "WayOfTheFist"
 $Version = "0.1.0"
 $Work = "$HOME\Downloads\$Mod-Workshop"
 $Watcher = "$env:LOCALAPPDATA\WorkshopWatcher\WorkshopWatcher.ps1"
+$SteamUser = "your Steam account name"
 ```
 
 | Value | What it is | Where to find it |
@@ -21,6 +22,7 @@ $Watcher = "$env:LOCALAPPDATA\WorkshopWatcher\WorkshopWatcher.ps1"
 | `$Slug` | The tag prefix. Never changes. | `slug` in `.github/workflows/release.yml`. |
 | `$Mod` | The mod's folder name, which starts the ZIP's name. Never changes. | `mod-folder` in `.github/workflows/release.yml`. |
 | `$Version` | The release's version, without a `v`. Changes with each release. | `version` in the mod's `meitou.json`, or the release's title. |
+| `$SteamUser` | The name you sign in to Steam with, as given to the Workshop Watcher installer. | Your Steam login. |
 
 A release's tag is `$Slug-v$Version` (`way-of-the-fist-v0.1.0`) and its ZIP is `$Mod-$Version.zip` (`WayOfTheFist-0.1.0.zip`), so the ZIP
 downloads from `https://github.com/$Repo/releases/download/$Slug-v$Version/$Mod-$Version.zip`. Copy `$Version` from a release that is not
@@ -51,7 +53,14 @@ guide. The installer downloads steamcmd to `%LOCALAPPDATA%\WorkshopWatcher\steam
    ```
 
    `$Work\$Mod` now holds `$Mod.dll`, `meitou.json` and `$Mod.mod`.
-2. Save the item's preview image as `$Work\preview.png`: PNG or JPG, under 1 MB, square (512 x 512 pixels works).
+2. Save the item's preview image as `$Work\preview.png`: PNG or JPG, under 1 MB, square (512 x 512 pixels works). Use exactly that
+   name, or change `previewfile` in step 4 to match.
+3. Check both paths. Each line must print `True`:
+
+   ```powershell
+   Test-Path "$Work\$Mod\meitou.json"
+   Test-Path "$Work\preview.png"
+   ```
 
 ## 4. Write the VDF
 
@@ -95,14 +104,18 @@ Rules for values:
 ## 5. Create the item
 
 ```powershell
-& "$env:LOCALAPPDATA\WorkshopWatcher\steamcmd\steamcmd.exe" +login <steam account name> +workshop_build_item "$Work\create.vdf" +quit
+& "$env:LOCALAPPDATA\WorkshopWatcher\steamcmd\steamcmd.exe" +login $SteamUser +workshop_build_item "$Work\create.vdf" +quit
 ```
 
-`<steam account name>` is the name you sign in to Steam with, as given to the installer. steamcmd uses the saved login. If it asks for a
-password or Steam Guard code, run `powershell -ExecutionPolicy Bypass -File $Watcher login`, then run the command again.
+steamcmd uses the saved login. If it asks for a password or Steam Guard code, run
+`powershell -ExecutionPolicy Bypass -File $Watcher login`, then run the command again.
 
-The run ends with `Success.`. Open Steam > your profile > Workshop Items, open the new item and copy the number after `?id=` in its URL:
-that is the item ID.
+steamcmd creates the item first and prints `Create new workshop item ( PublishFileID <item ID>)`: that number is the item ID. The run ends
+with `Success.`.
+
+If the run fails after that line (for example `ERROR! Failed to update workshop item (File Not Found)`, which means `contentfolder` or
+`previewfile` does not exist), the item already exists. Fix the cause, change `"0"` after `publishedfileid` in the step 4 command to the item ID, run that command,
+then run this one again. With `0`, it creates another item.
 
 ## 6. Finish the item's page
 
