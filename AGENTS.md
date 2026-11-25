@@ -49,6 +49,7 @@ bite:
 | `meitou-compat.yml` | daily RefCheck against the newest Meitou release, nightly and each floor; one `meitou-compat` issue; opens `Meitou: Admit <tag>` cap-lift PRs | a missing member is a port (skill); a nightly-only problem is a warning |
 | `engine-update.yml` | without frameworks: moves `engine`, `Directory.Build.rsp` and each `gameVersion` floor to the newest upstream Meitou tag, PR into `beta`, merges when green | a red PR is a port: fix it in that PR (skill) |
 | `framework-update.yml` | moves `meitou.lock.json` (and `engine`, rsp and floors) to new framework releases, PR into `beta` | a red PR is a regression report: fix it in that PR |
+| `beta.yml` (a framework: `<slug>-beta.yml`) | on each merge into `beta`, publishes prerelease `<slug>-<version>-beta.<commit>` and rolling `<slug>-beta`, so every engine move has a mod build to play | nothing; point testers at the newest beta |
 | `release.yml` | on each merge into `release`, tags it `<slug>-v<version>` from `meitou.json` and publishes `<Mod>-<version>.zip` via GutenStructure (skips an existing tag) | bump the version to release; `tools\Tag-Release.ps1` only as a fallback when asked |
 
 The template has every workflow; a repo may not have them all yet (`.github/workflows/`).
