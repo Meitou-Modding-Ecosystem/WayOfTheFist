@@ -4,21 +4,33 @@ You create the mod's Workshop item once, by hand, from a release ZIP. After that
 runs on your Windows PC and uploads each new GitHub release to that item on a schedule. All steps run in **Windows PowerShell** on your PC,
 signed in to the Steam account that will own the item.
 
-The commands use these values. Set them once per PowerShell window, with your mod's folder name (as in `release.yml` `mod-folder`) and its
-first release version:
+The commands use these values. Set them once per PowerShell window:
 
 ```powershell
+$Repo = "Meitou-Modding-Ecosystem/WayOfTheFist"
+$Slug = "way-of-the-fist"
 $Mod = "WayOfTheFist"
 $Version = "0.1.0"
 $Work = "$HOME\Downloads\$Mod-Workshop"
 $Watcher = "$env:LOCALAPPDATA\WorkshopWatcher\WorkshopWatcher.ps1"
 ```
 
+| Value | What it is | Where to find it |
+| --- | --- | --- |
+| `$Repo` | The GitHub repository, `<owner>/<name>`. | The repository's URL. |
+| `$Slug` | The tag prefix. Never changes. | `slug` in `.github/workflows/release.yml`. |
+| `$Mod` | The mod's folder name, which starts the ZIP's name. Never changes. | `mod-folder` in `.github/workflows/release.yml`. |
+| `$Version` | The release's version, without a `v`. Changes with each release. | `version` in the mod's `meitou.json`, or the release's title. |
+
+A release's tag is `$Slug-v$Version` (`way-of-the-fist-v0.1.0`) and its ZIP is `$Mod-$Version.zip` (`WayOfTheFist-0.1.0.zip`), so the ZIP
+downloads from `https://github.com/$Repo/releases/download/$Slug-v$Version/$Mod-$Version.zip`. Copy `$Version` from a release that is not
+marked **Pre-release**: the `way-of-the-fist-beta` and `way-of-the-fist-<version>-beta.<commit>` prereleases have other tags and ZIP names.
+
 ## 1. Release the mod
 
 1. Merge `beta` into `main`, then open and merge a PR from `main` into `release` ([Branches](../README.md#branches)).
 2. Wait for the Release workflow on `release`. It tags the merge `<slug>-v<version>` with the version in `meitou.json` (for example
-   `example-mod-v0.1.0`) and creates a release with `<Mod>-<version>.zip` and `<Mod>-<version>.zip.sha256`. If that run fails before
+   `way-of-the-fist-v0.1.0`) and creates a release with `<Mod>-<version>.zip` and `<Mod>-<version>.zip.sha256`. If that run fails before
    tagging, `powershell -ExecutionPolicy Bypass -File tools\Tag-Release.ps1` pushes the tag by hand (`-DryRun` only prints the commands).
 
 ## 2. Install Workshop Watcher and sign in to Steam
@@ -33,7 +45,8 @@ guide. The installer downloads steamcmd to `%LOCALAPPDATA%\WorkshopWatcher\steam
 
    ```powershell
    New-Item -ItemType Directory -Force $Work
-   Invoke-WebRequest "https://github.com/<owner>/<repo>/releases/download/<slug>-v$Version/$Mod-$Version.zip" -OutFile "$Work\$Mod.zip"
+   $ProgressPreference = "SilentlyContinue"
+   Invoke-WebRequest "https://github.com/$Repo/releases/download/$Slug-v$Version/$Mod-$Version.zip" -OutFile "$Work\$Mod.zip"
    Expand-Archive "$Work\$Mod.zip" -DestinationPath $Work
    ```
 
@@ -104,7 +117,7 @@ On the item's page in Steam:
 ## 7. Watch the item
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File $Watcher add-item -Repo <owner>/<repo> -AppId 233860 -ItemId <item ID> -Asset "$Mod-*.zip"
+powershell -ExecutionPolicy Bypass -File $Watcher add-item -Repo $Repo -AppId 233860 -ItemId <item ID> -Asset "$Mod-*.zip"
 powershell -ExecutionPolicy Bypass -File $Watcher run -DryRun
 ```
 
