@@ -94,6 +94,16 @@ of `skill category` 5 (Unarmed) shows on the arms whether or not the character f
   not mirrored). The palm's centre is 0.7 units past the wrist (**Observed**: `human_male.mesh`'s hand reaches 1.8 units); vertices pass from
   the forearm's weight to the hand's within 0.3 units of the wrist.
 
+### Inventory icon
+
+The game draws a WEAPON's (and most ITEMs') inventory icon from its mesh, unless its `Icons` resource group holds a picture named
+`<item string id>.<material string id>.png`. A mod's `icons` folder is in that group, and Play copies `<Mod>/icons/` into the deployed folder.
+
+- Name the picture by the item and the MATERIAL_SPECS_CLOTHING the import writes for its model (`950000-<Mod>.mod` for block 0).
+- Draw it at the footprint's shape on a transparent background, as the game saves its pictures: 50 pixels a square, each side rounded up to a
+  power of two (4 x 1: 256 x 64).
+- Needs MeitouClientSandbox `fork` (Sandbox #91); the original game does the same.
+
 ## Getting a good model
 
 - Ask Meshy or Hi3D for a PBR-textured model and download it as GLB. A few tens of thousands of triangles is plenty; the log flags a model

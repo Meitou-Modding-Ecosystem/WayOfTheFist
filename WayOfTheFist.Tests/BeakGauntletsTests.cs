@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Meitou.Data;
 using Meitou.Data.Fcs;
+using Meitou.Simulation.Items;
 
 namespace WayOfTheFist.Tests;
 
@@ -52,6 +53,78 @@ public sealed class BeakGauntletsTests
         Assert.Equal(BeakGauntlets.GroundMesh, prefix + ".mesh");
         Assert.Equal(BeakGauntlets.Mesh, prefix + "_worn.mesh");
         Assert.Equal(BeakGauntlets.FemaleMesh, prefix + "_worn_female.mesh");
+    }
+
+    [Fact]
+    public void The_gauntlets_go_into_the_back_and_hip_weapon_slots_even_when_turned_in_the_grid()
+    {
+        var inventory = new Inventory();
+        var onBack = Gauntlets(rotated: true);
+        var second = Gauntlets(rotated: false);
+        var third = Gauntlets(rotated: false);
+        var fourth = Gauntlets(rotated: false);
+        var onHip = Gauntlets(rotated: false);
+
+        // The back (10 x 2) takes two rows of two, then the hip (7 x 1) one.
+        Assert.True(InventoryCommands.TryEquip(inventory, onBack));
+        Assert.True(InventoryCommands.TryEquip(inventory, second));
+        Assert.True(InventoryCommands.TryEquip(inventory, third));
+        Assert.True(InventoryCommands.TryEquip(inventory, fourth));
+        Assert.True(InventoryCommands.TryEquip(inventory, onHip));
+
+        Assert.Equal(("back", false), (onBack.Section, onBack.Rotated));
+        Assert.Equal("hip", onHip.Section);
+    }
+
+    [Fact]
+    public void The_footprint_fits_both_weapon_slots_upright()
+    {
+        var weapon = new FcsRecord { StringId = BeakGauntlets.Weapon, RecordType = FcsRecordType.Weapon, Name = BeakGauntlets.Name };
+        BeakGauntlets.Fill(weapon, Fists(), hasMaterial: true);
+
+        int width = weapon.Ints["inventory footprint width"];
+        int height = weapon.Ints["inventory footprint height"];
+        foreach (string slot in new[] { "hip", "back" })
+        {
+            var size = InventoryCommands.SectionSize(slot);
+            bool fits = width <= size.Width && height <= size.Height;
+            Assert.True(fits, $"{width} x {height} does not fit the {slot} slot ({size.Width} x {size.Height})");
+        }
+    }
+
+    [Fact]
+    public void The_icon_is_named_as_the_games_saved_pictures_and_shaped_as_the_footprint()
+    {
+        string path = Path.Combine(RepoRoot(), "WayOfTheFist", "icons", BeakGauntlets.Icon);
+
+        var ids = Meitou.Data.Gameplay.ItemIconCache.Parse(Path.GetFileNameWithoutExtension(path));
+        Assert.Equal((BeakGauntlets.Weapon, BeakGauntlets.Material, ""), ids);
+        var (width, height) = PngSize(path);
+        Assert.Equal(BeakGauntlets.FootprintWidth * height, BeakGauntlets.FootprintHeight * width);
+    }
+
+    /// <summary>
+    /// A Beak Gauntlets item as the inventory holds it, lying turned in a grid when <paramref name="rotated"/>.
+    /// </summary>
+    static ItemInstance Gauntlets(bool rotated) => new()
+    {
+        Record = BeakGauntlets.Weapon,
+        Type = FcsRecordType.Weapon,
+        AttachSlot = 0,
+        Width = BeakGauntlets.FootprintWidth,
+        Height = BeakGauntlets.FootprintHeight,
+        Rotated = rotated,
+    };
+
+    /// <summary>
+    /// A PNG's width and height, from its IHDR chunk.
+    /// </summary>
+    static (int Width, int Height) PngSize(string path)
+    {
+        byte[] head = File.ReadAllBytes(path)[16..24];
+        int width = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(head);
+        int height = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(head.AsSpan(4));
+        return (width, height);
     }
 
     /// <summary>

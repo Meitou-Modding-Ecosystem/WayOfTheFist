@@ -9,7 +9,7 @@ Fist weapons: items equipped in a weapon slot that fight as fists (Martial Arts)
 | Record | WEAPON `1-WayOfTheFist.mod`, added in the data phase (`BeakGauntlets`) |
 | Copied from | the game's `FISTS`: `skill category` 5, `length` 18, `indoors mod` 8 |
 | Damage | cut x1.4, blunt x0.6, bleed x0.6, armour penetration 0.1, robots x0.8 |
-| Item | value 3000, 4 kg, 2 x 4 inventory squares |
+| Item | value 3000, 4 kg, 4 x 1 inventory squares (fits the hip and back slots, which take weapons only upright); icon `WayOfTheFist/icons/` |
 | Sold by | the Ronin weapon smiths (`weapon vendor Ronin`, `1026-gamedata.base`), with their manufacturers |
 | Model | `WayOfTheFist/ItemModels/beak-gauntlet.glb`, 0.55 m, one on each hand ([structures](structures.md#worn-on-the-hands)) |
 

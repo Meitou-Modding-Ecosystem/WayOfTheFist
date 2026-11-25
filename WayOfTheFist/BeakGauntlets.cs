@@ -33,6 +33,18 @@ public static class BeakGauntlets
         GroundMesh = "wayofthefist_beak_gauntlet.mesh";
 
     /// <summary>
+    /// The inventory footprint, 4 x 1: a weapon slot takes an item only upright (the hip slot is 7 x 1, the back 10 x 2), and the icon
+    /// (<see cref="Icon"/>) is drawn at that shape.
+    /// </summary>
+    public const int FootprintWidth = 4, FootprintHeight = 1;
+
+    /// <summary>
+    /// The inventory picture in the mod's <c>icons</c> folder: the game's saved-picture name, <c>&lt;item&gt;.&lt;material&gt;.png</c>, which it takes
+    /// instead of drawing the weapon (engine docs/game/ui-screens.md "Item icons"). Found only with <see cref="Material"/>, which the item import writes.
+    /// </summary>
+    public const string Icon = Weapon + "." + Material + ".png";
+
+    /// <summary>
     /// The game's fists, the record the gauntlets are copied from.
     /// </summary>
     public const string Fists = "FISTS";
@@ -72,8 +84,8 @@ public static class BeakGauntlets
 
         weapon.Ints["value"] = 3000;
         weapon.Floats["weight kg"] = 4;
-        weapon.Ints["inventory footprint width"] = 2;
-        weapon.Ints["inventory footprint height"] = 4;
+        weapon.Ints["inventory footprint width"] = FootprintWidth;
+        weapon.Ints["inventory footprint height"] = FootprintHeight;
         weapon.Bools["auto icon image"] = true;
 
         weapon.Filenames["mesh"] = Mesh;
