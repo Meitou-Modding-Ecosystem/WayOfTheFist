@@ -1,6 +1,6 @@
 # Publishes WayOfTheFist from beta as GitHub prereleases on every merge, so each upstream Meitou build the engine moves to (engine-update.yml)
 # has a matching mod build to play: way-of-the-fist-<version>-beta.<commit> (never moved) and rolling way-of-the-fist-beta (WayOfTheFist-beta.zip).
-# Packaging: GutenStructure package-meitou-mod.yml, pinned as release.yml pins it.
+# Packaging: GutenStructure package-meitou-mod.yml, pinned to a commit that packs items/ and imported models.
 name: Beta prerelease
 
 on:
@@ -19,7 +19,7 @@ jobs:
     if: github.ref == 'refs/heads/beta'
     permissions:
       contents: write
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@35828a0aa8752f1fc56a9dbdd35b330bf3520ab2
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@18f67b9121d10d27530bb45916e338f4e159eaa1
     with:
       mod-folder: WayOfTheFist
       slug: way-of-the-fist
