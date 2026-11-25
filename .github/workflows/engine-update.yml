@@ -18,9 +18,9 @@ jobs:
       contents: write
       pull-requests: write
       actions: write
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/engine-update.yml@b8fc4ac1481cd27e036fdd5ed8074ea826dae701
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/engine-update.yml@29fefc59172e5427e6bbf7ef5ba1741f7fe64daa
     with:
-      tools-ref: b8fc4ac1481cd27e036fdd5ed8074ea826dae701
+      tools-ref: 29fefc59172e5427e6bbf7ef5ba1741f7fe64daa
     secrets:
       app-id: ${{ secrets.MEITOU_BOT_APP_ID }}
       app-key: ${{ secrets.MEITOU_BOT_KEY }}
