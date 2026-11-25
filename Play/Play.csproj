@@ -82,6 +82,18 @@
     <Message Importance="high" Text="Deployed @(PlayMod->'%(ModName)', ', ') to $(KenshiModsDir)" />
   </Target>
 
+  <!--
+    Each mod's icons folder, copied whole: the game takes an item picture named <item>.<material>.png from it instead of drawing the item
+    (docs/structures.md "Inventory icon").
+  -->
+  <Target Name="PlayDeployIcons" AfterTargets="PlayDeploy" DependsOnTargets="PlayFindMods" Condition="'$(PlayDeploy)' == 'true'">
+    <ItemGroup>
+      <_PlayIcon Include="%(PlayMod.RootDir)%(PlayMod.Directory)icons/**/*.png" ModName="%(PlayMod.ModName)" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_PlayIcon)" DestinationFiles="@(_PlayIcon->'$(KenshiModsDir)%(ModName)/icons/%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" Condition="'@(_PlayIcon)' != ''" />
+  </Target>
+
   <!-- The locked frameworks' release folders, copied whole (assembly, symbols, manifest, .mod) beside the mods. -->
   <Target Name="PlayDeployFrameworks" AfterTargets="PlayDeploy" DependsOnTargets="MeitouResolveFrameworks" Condition="'$(PlayDeploy)' == 'true'">
     <ItemGroup>
