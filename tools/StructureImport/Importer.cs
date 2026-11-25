@@ -175,7 +175,7 @@ public static class Importer
         {
             string skeleton = WornItem.FindFile(game, skeletonName)
                 ?? throw new FileNotFoundException($"No {skeletonName} under {Path.Combine(game, "data")}");
-            var (wornMesh, skin) = WornItem.Wear(mesh, worn, spec.Grip, skeleton);
+            var (wornMesh, skin) = WornItem.Wear(mesh, worn, spec.Grip, spec.Follows == "forearm", skeleton);
             string name = prefix + suffix + ".mesh";
             OgreMeshWriter.Write(wornMesh, MeshMath.Tangents(wornMesh), Path.Combine(assets, name), skin);
             names.Add(name);

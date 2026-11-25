@@ -47,9 +47,9 @@ public static class WornItem
     /// <summary>
     /// The placed item (<see cref="MeshMath.Place"/>: game units, on its base, centred) on the hands <paramref name="worn"/> names
     /// (<see cref="ItemSpec.WornValues"/>), its palm at <paramref name="grip"/> of its length, skinned to the skeleton file
-    /// <paramref name="skeletonPath"/>.
+    /// <paramref name="skeletonPath"/>: wholly to the forearm when <paramref name="forearm"/>, so a bent wrist leaves it on the arm's line.
     /// </summary>
-    public static (SurfaceMesh Mesh, MeshSkin Skin) Wear(SurfaceMesh item, string worn, float grip, string skeletonPath)
+    public static (SurfaceMesh Mesh, MeshSkin Skin) Wear(SurfaceMesh item, string worn, float grip, bool forearm, string skeletonPath)
     {
         var skeleton = OgreSkeletonReader.Read(File.ReadAllBytes(skeletonPath));
         var world = BindPose(skeleton);
@@ -57,7 +57,8 @@ public static class WornItem
 
         var output = new SurfaceMesh { Look = item.Look };
         var weights = new List<(ushort, float)[]>();
-        foreach (string side in Sides(worn)) AddSide(item, itemToHand, Bone(skeleton, $"Bip01 {side} Hand"), world, output, weights);
+        foreach (string side in Sides(worn)) AddSide(item, itemToHand, Bone(skeleton, $"Bip01 {side} Hand"), forearm, world, output,
+                weights);
         return (output, new MeshSkin(Path.GetFileName(skeletonPath), [.. weights]));
     }
 
@@ -73,13 +74,13 @@ public static class WornItem
 
     /// <summary>
     /// Adds one copy of the item on <paramref name="hand"/>: each vertex in the bind pose, weighted to the hand past the wrist and to the forearm
-    /// before it, blended over <see cref="BlendUnits"/> each way. Both sides use the same placement in the hand bone's frame, so the item's top
-    /// stays on the back of each hand.
+    /// before it, blended over <see cref="BlendUnits"/> each way (all to the forearm when <paramref name="forearm"/>). Both sides use the same
+    /// placement in the hand bone's frame, so the item's top stays on the back of each hand.
     /// </summary>
-    static void AddSide(SurfaceMesh item, Matrix4x4 itemToHand, OgreBone hand, Dictionary<ushort, Matrix4x4> world, SurfaceMesh output,
-            List<(ushort, float)[]> weights)
+    static void AddSide(SurfaceMesh item, Matrix4x4 itemToHand, OgreBone hand, bool forearm, Dictionary<ushort, Matrix4x4> world,
+            SurfaceMesh output, List<(ushort, float)[]> weights)
     {
-        ushort forearm = hand.Parent ?? throw new InvalidDataException($"{hand.Name} has no parent bone");
+        ushort forearmBone = hand.Parent ?? throw new InvalidDataException($"{hand.Name} has no parent bone");
         var handToBind = world[hand.Handle];
         var itemToBind = itemToHand * handToBind;
         int first = output.Vertices.Count;
@@ -87,14 +88,20 @@ public static class WornItem
         foreach (var v in item.Vertices)
         {
             var local = Vector3.Transform(v.Position, itemToHand);
-            float handWeight = Math.Clamp((local.X + BlendUnits) / (2 * BlendUnits), 0, 1);
+            float handWeight = forearm ? 0 : HandWeight(local.X);
             var normal = Vector3.Normalize(Vector3.TransformNormal(v.Normal, itemToBind));
             output.Vertices.Add(new MeshVertex(Vector3.Transform(local, handToBind), normal, v.Uv));
-            weights.Add([(hand.Handle, handWeight), (forearm, 1 - handWeight)]);
+            weights.Add([(hand.Handle, handWeight), (forearmBone, 1 - handWeight)]);
         }
 
         output.Indices.AddRange(item.Indices.Select(i => i + first));
     }
+
+    /// <summary>
+    /// The hand bone's share of a vertex <paramref name="pastWrist"/> units past the wrist along the hand bone's x: 0 before
+    /// <see cref="BlendUnits"/> short of it, 1 beyond <see cref="BlendUnits"/> past it.
+    /// </summary>
+    static float HandWeight(float pastWrist) => Math.Clamp((pastWrist + BlendUnits) / (2 * BlendUnits), 0, 1);
 
     /// <summary>
     /// The placed item's space to the hand bone's: its grip point (<paramref name="grip"/> along X from its fist end, centred on Y and Z) to the

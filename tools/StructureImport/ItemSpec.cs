@@ -41,9 +41,20 @@ public sealed class ItemSpec
     public float Grip { get; set; } = 0.5f;
 
     /// <summary>
+    /// For a worn item: the bone it moves with. <c>hand</c> bends with the wrist (knuckles, claws over the fingers); <c>forearm</c> stays on the
+    /// arm's line when the wrist bends (a blade along the arm, a gauntlet held straight by its sleeve).
+    /// </summary>
+    public string Follows { get; set; } = "hand";
+
+    /// <summary>
     /// The values <see cref="Worn"/> takes.
     /// </summary>
     public static readonly string[] WornValues = ["hands", "right hand", "left hand"];
+
+    /// <summary>
+    /// The values <see cref="Follows"/> takes.
+    /// </summary>
+    public static readonly string[] FollowsValues = ["hand", "forearm"];
 
     /// <summary>
     /// The JSON options: camelCase names, comments and trailing commas allowed, unknown names refused (a typo would else go unnoticed).
@@ -85,6 +96,7 @@ public sealed class ItemSpec
             : !float.IsFinite(Yaw) ? "yaw must be a number"
             : Worn is not null && !WornValues.Contains(Worn) ? $"worn must be one of {string.Join(", ", WornValues)}"
             : !(Grip is >= 0 and <= 1) ? "grip must be a number from 0 to 1"
+            : !FollowsValues.Contains(Follows) ? $"follows must be one of {string.Join(", ", FollowsValues)}"
             : TextureSize is < 4 or > StructureSpec.MaxTextureSize || (TextureSize & (TextureSize - 1)) != 0
                 ? $"textureSize must be a power of two from 4 to {StructureSpec.MaxTextureSize}"
             : null;
