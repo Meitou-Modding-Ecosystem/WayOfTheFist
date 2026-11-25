@@ -19,7 +19,8 @@ MeitouModTemplate and copy it to the others. Procedures (local build broken, new
   (VlcekM/MeitouClient) releases them and the pin moves.
 - What `engine` is pinned to:
   - with frameworks in `meitou.lock.json`: the locked frameworks' engine commit (framework-update moves both together);
-  - without: an immutable sandbox engine commit for development, or an upstream release commit. Production requires upstream source and released-engine compatibility.
+  - without: the newest upstream Meitou tag (VlcekM/MeitouClient, nightly or full release). `engine-update.yml` moves it with the rsp
+    stamp and the floors within hours of each upstream build; don't hold it back or pin a fork commit.
 - The pin, `Directory.Build.rsp` and each `gameVersion` floor move together (Versioning below).
 - `git pull` does not move submodules. After every pull, and whenever a build can't find engine types, run
   `powershell -ExecutionPolicy Bypass -File tools\Update-Local.ps1 -Clean -Build` (docs/local-development.md, "Keep clones current").
@@ -34,8 +35,8 @@ bite:
 - A mod's version lives only in its `meitou.json`; the assembly reads it. Bump it in any PR that changes what players get.
 - Meitou refuses a DLL that references a newer engine assembly than the running game. Releases stamp the engine `X.Y.Z.0`; the submodule
   builds `1.0.0.0`. So `Directory.Build.rsp` (`-p:AssemblyVersion=<floor>.0`) stamps the references as the oldest supported release.
-- `gameVersion` = `">=<floor> <cap>"`. Floor = the rsp version = the oldest release the mod is built for. Cap only below a release with a
-  **known** break (RefCheck or a test found it); never cap ahead of time.
+- `gameVersion` = `">=<floor> <cap>"`. Floor = the rsp version = the release of the pinned engine tag (a nightly counts as the release
+  it leads to). Cap only below a release with a **known** break (RefCheck or a test found it); never cap ahead of time.
 - Framework dependency ranges: `">=<first version with what you use> <<next minor>"`, e.g. `">=0.6.2 <0.7.0"`.
 - `apiVersion` in `meitou.json`: the oldest code-mod API with everything the mod uses (an older game refuses a higher one). 2 adds
   `version`, `dependencies` and `gameVersion`; 3 (Meitou 0.22.2) adds chooser goals and `World.GiveOrder`. MeitouClient `docs/modding.md`.
@@ -46,7 +47,8 @@ bite:
 | --- | --- | --- |
 | `ci.yml` | Development readiness requires builds, tests and Play deploy against the pin. Release readiness adds upstream compatibility and package validation on release PRs. | beta needs zero approvals; main/release need two including code owners |
 | `meitou-compat.yml` | daily RefCheck against the newest Meitou release, nightly and each floor; one `meitou-compat` issue; opens `Meitou: Admit <tag>` cap-lift PRs | a missing member is a port (skill); a nightly-only problem is a warning |
-| `framework-update.yml` | moves `meitou.lock.json` (and `engine`) to new framework releases, PR into `beta` | a red PR is a regression report: fix it in that PR |
+| `engine-update.yml` | without frameworks: moves `engine`, `Directory.Build.rsp` and each `gameVersion` floor to the newest upstream Meitou tag, PR into `beta`, merges when green | a red PR is a port: fix it in that PR (skill) |
+| `framework-update.yml` | moves `meitou.lock.json` (and `engine`, rsp and floors) to new framework releases, PR into `beta` | a red PR is a regression report: fix it in that PR |
 | `release.yml` | on each merge into `release`, tags it `<slug>-v<version>` from `meitou.json` and publishes `<Mod>-<version>.zip` via GutenStructure (skips an existing tag) | bump the version to release; `tools\Tag-Release.ps1` only as a fallback when asked |
 
 The template has every workflow; a repo may not have them all yet (`.github/workflows/`).
@@ -66,7 +68,7 @@ A `needs-release` label means the merged change only reaches players after promo
 ## This repo
 
 - Way of the Fist (`way.of.the.fist`, folder `WayOfTheFist/`, slug `way-of-the-fist`): fist weapons, records added in the data phase
-  (`WayOfTheFist.mod` holds only the item models' materials). No frameworks: `engine` pins an upstream tag (a nightly one until a release has
-  the data phase). Docs `docs/way-of-the-fist.md`.
+  (`WayOfTheFist.mod` holds only the item models' materials). No frameworks: `engine` follows the newest upstream tag
+  (`engine-update.yml`). Docs `docs/way-of-the-fist.md`.
 - The gauntlets' look is `WayOfTheFist/ItemModels/*.glb` with `"worn"` set (docs/structures.md "Worn on the hands"); the engine draws it only
   with worn unarmed weapons (MeitouClientSandbox `fork`, not yet upstream).

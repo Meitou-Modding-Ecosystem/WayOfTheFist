@@ -19,25 +19,17 @@ Symptoms: `The type or namespace name '<X>' could not be found` for an engine ty
 3. Still failing with `engine` on its pin: the code uses something the pinned engine lacks. Check `git -C engine log --oneline -1` against
    the release that added it; the fix is a pin move (below), not an engine edit.
 
-## Move the engine to a new Meitou release
+## Move the engine to a new Meitou build
 
-Only in a repo **without** frameworks in `meitou.lock.json`. With frameworks, the engine follows the lock: let framework-update move both,
-or move the lock to a framework release built on that engine.
+The engine tracks the newest upstream tag (nightly or full release) on its own:
+[engine-update](https://github.com/TheIvoryDisaster/GutenStructure/blob/beta/docs/engine-update.md) opens `Meitou: Move engine to <tag>`
+in a repo **without** frameworks, moving `engine`, `Directory.Build.rsp` and every `gameVersion` floor together, and merges it when CI is
+green. With frameworks, framework-update does the same once the framework has moved.
 
-```powershell
-git -C engine fetch --no-tags https://github.com/VlcekM/MeitouClient.git "refs/tags/vX.Y.Z:refs/tags/vX.Y.Z"
-git -C engine checkout vX.Y.Z
-git add engine
-dotnet build
-dotnet test
-```
-
-- Pin release tags only (`vX.Y.Z` of VlcekM/MeitouClient), never the fork's `fork` head or a nightly.
-- Keep the floor (`Directory.Build.rsp` and each `gameVersion` floor) where it is unless the mod now needs the new release: it calls a
-  member the older release lacks, or a port can't keep the old call. Then raise the rsp version and every floor to `X.Y.Z` together.
-- CI's Engine references job (RefCheck) checks the built DLL against the floor release: a member missing there means raise the floor or
-  avoid the member.
-- Bump the mod's patch version in `meitou.json`. Say in the PR body which release the pin moved to and whether the floor moved.
+- **The PR is red**: the new Meitou broke the mod. Port it on that PR's branch (`engine-update/upstream`), bump nothing else, and let it
+  merge.
+- **Don't wait for the schedule**: run the `Engine update` workflow by hand (Actions, `workflow_dispatch`).
+- Never pin a fork commit or hold the engine back.
 
 ## A meitou-compat issue or PR
 

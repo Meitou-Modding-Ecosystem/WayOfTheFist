@@ -107,12 +107,12 @@ git -C "$Ashen\engine" fetch origin <engine branch>
 git -C "$Ashen\engine" checkout FETCH_HEAD
 ```
 
-- Don't commit the new engine pointer: engine pins move only to upstream release tags, so the change reaches this repo once upstream
-  releases it.
+- Don't commit the new engine pointer: engine pins move only to upstream tags, so the change reaches this repo with the first upstream
+  nightly that has it (engine-update moves the pin).
 - A mod that uses a framework also needs the framework rebuilt on that engine. Use the framework override above and check out the same
   engine branch in `$Rivalry\engine`.
-- Order to land it: engine PR into `fork`; after upstream releases it, the framework PR moving `$Rivalry\engine` to that release, then the
-  mod PR moving its lock and `engine`.
+- Order to land it: engine PR into `fork`; after an upstream nightly has it and engine-update moved `$Rivalry\engine`, the framework PR,
+  then the mod PR moving its lock and `engine`.
 
 ## Switch the engine to play or test
 
