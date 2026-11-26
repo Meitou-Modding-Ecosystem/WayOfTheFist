@@ -31,3 +31,14 @@ Fist weapons: items equipped in a weapon slot that fight as fists (Martial Arts)
 | Sold by | the Ronin weapon smiths, with the Beak Gauntlets |
 | Model | `WayOfTheFist/ItemModels/dog-knuckles.glb`, 0.6 m, one on each forearm: the forearm bone runs along the sleeve's middle and the wrist sits 36% of the length from the cuff, so the fist is inside the dog's head; skinned to the forearm |
 | Hands | `hide hands` set: the wearer's hands are hidden while it is worn (engine `docs/characters.md` "Worn unarmed weapons"; MeitouClientSandbox `fork`). On an engine without it the hands show inside the head |
+
+## Crab Foot
+
+| | |
+| --- | --- |
+| Record | WEAPON `3-WayOfTheFist.mod`, added in the data phase (`CrabFoot`) |
+| Copied from | the game's `FISTS`, as the Beak Gauntlets |
+| Damage | cut x1.2, blunt x1.1, bleed x0.5, armour penetration 0.2, robots x1 |
+| Item | value 4000, 6 kg, 4 x 1 inventory squares; icon `WayOfTheFist/icons/` |
+| Sold by | the Ronin weapon smiths, with the other fist weapons |
+| Model | `WayOfTheFist/ItemModels/crab-foot.glb`, 0.7 m, one on each forearm: the forearm through the sleeve, the palm on the strap under it and the fist below the shell's rim; follows the hand, so the shell bends with the wrist |
