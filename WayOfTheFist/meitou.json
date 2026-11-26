@@ -1,6 +1,6 @@
 {
   "id": "way.of.the.fist",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "apiVersion": 2,
   "gameVersion": ">=0.23.2",
   "assemblies": [

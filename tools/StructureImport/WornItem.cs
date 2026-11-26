@@ -47,13 +47,14 @@ public static class WornItem
     /// <summary>
     /// The placed item (<see cref="MeshMath.Place"/>: game units, on its base, centred) on the hands <paramref name="worn"/> names
     /// (<see cref="ItemSpec.WornValues"/>), its palm at <paramref name="grip"/> of its length, skinned to the skeleton file
-    /// <paramref name="skeletonPath"/>: wholly to the forearm when <paramref name="forearm"/>, so a bent wrist leaves it on the arm's line.
+    /// <paramref name="skeletonPath"/>: wholly to the forearm when <paramref name="forearm"/>, so a bent wrist leaves it on the arm's line. It is
+    /// tilted <paramref name="tilt"/> degrees about the wrist, its fist end towards the back of the hand.
     /// </summary>
-    public static (SurfaceMesh Mesh, MeshSkin Skin) Wear(SurfaceMesh item, string worn, float grip, bool forearm, string skeletonPath)
+    public static (SurfaceMesh Mesh, MeshSkin Skin) Wear(SurfaceMesh item, string worn, float grip, float tilt, bool forearm, string skeletonPath)
     {
         var skeleton = OgreSkeletonReader.Read(File.ReadAllBytes(skeletonPath));
         var world = BindPose(skeleton);
-        var itemToHand = ItemToHand(item, grip);
+        var itemToHand = ItemToHand(item, grip) * Tilt(tilt);
 
         var output = new SurfaceMesh { Look = item.Look };
         var weights = new List<(ushort, float)[]>();
@@ -121,6 +122,12 @@ public static class WornItem
             0, 0, 0, 1);
         return Matrix4x4.CreateTranslation(-gripPoint) * turn * Matrix4x4.CreateTranslation(PalmUnits, 0, 0);
     }
+
+    /// <summary>
+    /// A turn of <paramref name="degrees"/> about the hand bone's y (across the hand) through the wrist, the bone's origin: its +x (towards the
+    /// fingers) towards its +z (the back of the hand).
+    /// </summary>
+    static Matrix4x4 Tilt(float degrees) => Matrix4x4.CreateRotationY(-degrees * MathF.PI / 180);
 
     /// <summary>
     /// The bone named <paramref name="name"/>. Throws when the skeleton has none.
