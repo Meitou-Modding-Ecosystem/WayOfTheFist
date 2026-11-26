@@ -7,7 +7,7 @@ namespace WayOfTheFist;
 /// <summary>
 /// The Beak Gauntlets (docs/way-of-the-fist.md): a WEAPON of <c>skill category</c> 5 (Unarmed) copied from the game's <c>FISTS</c>, so it fights
 /// with Martial Arts as fists do with its own cut, bleed and penetration, worn on both hands (<c>ItemModels/beak-gauntlet.glb</c>, engine
-/// docs/characters.md "Worn unarmed weapons"), and sold by the Ronin weapon smiths.
+/// docs/characters.md "Worn unarmed weapons"), and sold by the Ronin weapon smiths (<see cref="FistWeapons"/>).
 /// </summary>
 public static class BeakGauntlets
 {
@@ -45,25 +45,12 @@ public static class BeakGauntlets
     public const string Icon = Weapon + "." + Material + ".png";
 
     /// <summary>
-    /// The game's fists, the record the gauntlets are copied from.
-    /// </summary>
-    public const string Fists = "FISTS";
-
-    /// <summary>
-    /// The VENDOR_LIST of the Ronin weapon smiths (<c>weapon vendor Ronin</c>), which sell blades to wanderers.
-    /// </summary>
-    public const string RoninVendor = "1026-gamedata.base";
-
-    /// <summary>
-    /// Adds the weapon and lists it with the Ronin weapon smiths. Throws when the game has no <see cref="Fists"/>.
+    /// Adds the weapon. Throws when the game has no <see cref="FistWeapons.Fists"/>.
     /// </summary>
     public static void Add(ModDataContext c)
     {
-        var fists = c.Data.Find(Fists) ?? throw new InvalidOperationException("The game data has no FISTS to copy.");
         var weapon = c.Add(Weapon, FcsRecordType.Weapon, Name);
-        Fill(weapon, fists, hasMaterial: c.Data.Find(Material) is not null);
-
-        if (c.Data.Find(RoninVendor) is not null) c.Edit(RoninVendor).References["weapons"] = [new FcsReference(Weapon, 0, 0, 0)];
+        Fill(weapon, FistWeapons.FindFists(c), hasMaterial: c.Data.Find(Material) is not null);
     }
 
     /// <summary>
@@ -72,7 +59,7 @@ public static class BeakGauntlets
     /// </summary>
     public static void Fill(FcsRecord weapon, GameRecord fists, bool hasMaterial)
     {
-        CopyFrom(fists, weapon);
+        FistWeapons.CopyFrom(fists, weapon);
         weapon.Strings["description"] = "Hooked beak blades bound over both fists. The wearer fights with Martial Arts and tears what it hits.";
 
         weapon.Ints["skill category"] = 5;
@@ -93,24 +80,4 @@ public static class BeakGauntlets
         weapon.Filenames["ground mesh"] = GroundMesh;
         if (hasMaterial) weapon.References["material"] = [new FcsReference(Material, 0, 0, 0)];
     }
-
-    /// <summary>
-    /// Copies every value and reference of a loaded record onto a new one.
-    /// </summary>
-    static void CopyFrom(GameRecord from, FcsRecord to)
-    {
-        foreach (var (key, value) in from.Bools) to.Bools[key] = value;
-        foreach (var (key, value) in from.Floats) to.Floats[key] = value;
-        foreach (var (key, value) in from.Ints) to.Ints[key] = value;
-        foreach (var (key, value) in from.Vector3S) to.Vector3S[key] = value;
-        foreach (var (key, value) in from.Vector4S) to.Vector4S[key] = value;
-        foreach (var (key, value) in from.Strings) to.Strings[key] = value;
-        foreach (var (key, value) in from.Filenames) to.Filenames[key] = value;
-        foreach (string list in from.ReferenceLists) to.References[list] = [.. from.GetReferences(list).Select(Link)];
-    }
-
-    /// <summary>
-    /// A loaded link as a data file's.
-    /// </summary>
-    static FcsReference Link(GameReference link) => new(link.TargetStringId, link.Values.Value0, link.Values.Value1, link.Values.Value2);
 }
