@@ -46,19 +46,17 @@ public static class WornItem
 
     /// <summary>
     /// The placed item (<see cref="MeshMath.Place"/>: game units, on its base, centred) on the hands <paramref name="worn"/> names
-    /// (<see cref="ItemSpec.WornValues"/>), its palm at <paramref name="grip"/> of its length, skinned to the skeleton file
-    /// <paramref name="skeletonPath"/>: wholly to the forearm when <paramref name="forearm"/>, so a bent wrist leaves it on the arm's line. It is
-    /// tilted <paramref name="tilt"/> degrees about the wrist, its fist end towards the back of the hand.
+    /// (<see cref="ItemSpec.WornValues"/>), placed and skinned as <paramref name="fit"/> says, on the skeleton file <paramref name="skeletonPath"/>.
     /// </summary>
-    public static (SurfaceMesh Mesh, MeshSkin Skin) Wear(SurfaceMesh item, string worn, float grip, float tilt, bool forearm, string skeletonPath)
+    public static (SurfaceMesh Mesh, MeshSkin Skin) Wear(SurfaceMesh item, string worn, WornFit fit, string skeletonPath)
     {
         var skeleton = OgreSkeletonReader.Read(File.ReadAllBytes(skeletonPath));
         var world = BindPose(skeleton);
-        var itemToHand = ItemToHand(item, grip) * Tilt(tilt);
+        var itemToHand = ItemToHand(item, fit);
 
         var output = new SurfaceMesh { Look = item.Look };
         var weights = new List<(ushort, float)[]>();
-        foreach (string side in Sides(worn)) AddSide(item, itemToHand, Bone(skeleton, $"Bip01 {side} Hand"), forearm, world, output,
+        foreach (string side in Sides(worn)) AddSide(item, itemToHand, Bone(skeleton, $"Bip01 {side} Hand"), fit.Forearm, world, output,
                 weights);
         return (output, new MeshSkin(Path.GetFileName(skeletonPath), [.. weights]));
     }
@@ -105,14 +103,16 @@ public static class WornItem
     static float HandWeight(float pastWrist) => Math.Clamp((pastWrist + BlendUnits) / (2 * BlendUnits), 0, 1);
 
     /// <summary>
-    /// The placed item's space to the hand bone's: its grip point (<paramref name="grip"/> along X from its fist end, centred on Y and Z) to the
-    /// palm's centre, its fist end (-X) along the hand bone's +x (towards the fingers), its top (+Y) along the bone's +z (the back of the hand: the
-    /// bind pose's palms face the thighs) and its +Z along the bone's +y.
+    /// The placed item's space to the hand bone's: its grip point (<see cref="WornFit.Grip"/> along X from its fist end,
+    /// <see cref="WornFit.GripHeight"/> up Y from its base, centred on Z) to the palm's centre, its fist end (-X) along the hand bone's +x (towards
+    /// the fingers), its top (+Y) along the bone's +z (the back of the hand: the bind pose's palms face the thighs) and its +Z along the bone's +y;
+    /// then turned <see cref="WornFit.Tilt"/> about the palm's centre, its fist end towards the back of the hand.
     /// </summary>
-    static Matrix4x4 ItemToHand(SurfaceMesh item, float grip)
+    static Matrix4x4 ItemToHand(SurfaceMesh item, WornFit fit)
     {
         var (min, max) = MeshMath.Bounds([item]);
-        var gripPoint = new Vector3(min.X + grip * (max.X - min.X), (min.Y + max.Y) / 2, (min.Z + max.Z) / 2);
+        var size = max - min;
+        var gripPoint = new Vector3(min.X + fit.Grip * size.X, min.Y + fit.GripHeight * size.Y, (min.Z + max.Z) / 2);
 
         // Rows are where the item's x, y and z axes go (System.Numerics row vectors); a rotation, so the winding is kept.
         var turn = new Matrix4x4(
@@ -120,14 +120,11 @@ public static class WornItem
             0, 0, 1, 0,
             0, 1, 0, 0,
             0, 0, 0, 1);
-        return Matrix4x4.CreateTranslation(-gripPoint) * turn * Matrix4x4.CreateTranslation(PalmUnits, 0, 0);
-    }
 
-    /// <summary>
-    /// A turn of <paramref name="degrees"/> about the hand bone's y (across the hand) through the wrist, the bone's origin: its +x (towards the
-    /// fingers) towards its +z (the back of the hand).
-    /// </summary>
-    static Matrix4x4 Tilt(float degrees) => Matrix4x4.CreateRotationY(-degrees * MathF.PI / 180);
+        // About the bone's y (across the hand): its +x (towards the fingers) towards its +z (the back of the hand).
+        var tilt = Matrix4x4.CreateRotationY(-fit.Tilt * MathF.PI / 180);
+        return Matrix4x4.CreateTranslation(-gripPoint) * turn * tilt * Matrix4x4.CreateTranslation(PalmUnits, 0, 0);
+    }
 
     /// <summary>
     /// The bone named <paramref name="name"/>. Throws when the skeleton has none.
@@ -157,3 +154,12 @@ public static class WornItem
         }
     }
 }
+
+/// <summary>
+/// How a worn item sits on the hand (docs/structures.md "Worn on the hands").
+/// </summary>
+/// <param name="Grip">Where the palm's centre sits along the model's length, 0 at its fist end (-X) and 1 at its arm opening (+X).</param>
+/// <param name="GripHeight">Where the palm's centre sits up the model, 0 at its base and 1 at its top.</param>
+/// <param name="Tilt">Degrees the model is turned about the palm's centre, its fist end towards the back of the hand.</param>
+/// <param name="Forearm">Whether the whole model is skinned to the forearm, so a bent wrist leaves it on the arm's line.</param>
+public sealed record WornFit(float Grip, float GripHeight, float Tilt, bool Forearm);
