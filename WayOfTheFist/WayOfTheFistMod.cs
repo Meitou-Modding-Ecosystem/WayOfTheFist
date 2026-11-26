@@ -17,12 +17,14 @@ public sealed class WayOfTheFistMod : IMod, IModDataPhase
     {
         BeakGauntlets.Add(c);
         DogKnuckles.Add(c);
-        FistWeapons.SellAtRonin(c, BeakGauntlets.Weapon, DogKnuckles.Weapon);
+        CrabFoot.Add(c);
+        FistWeapons.SellAtRonin(c, BeakGauntlets.Weapon, DogKnuckles.Weapon, CrabFoot.Weapon);
     }
 
     public void Initialize(ModContext c)
     {
         if (c.Data.Find(BeakGauntlets.Weapon) is null) c.LogError("The Beak Gauntlets are missing: the data phase did not add them (see the log).");
         if (c.Data.Find(DogKnuckles.Weapon) is null) c.LogError("The Dog Knuckles are missing: the data phase did not add them (see the log).");
+        if (c.Data.Find(CrabFoot.Weapon) is null) c.LogError("The Crab Foot is missing: the data phase did not add it (see the log).");
     }
 }
