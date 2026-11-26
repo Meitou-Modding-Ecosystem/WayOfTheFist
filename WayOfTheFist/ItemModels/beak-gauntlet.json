@@ -1,1 +1,1 @@
-{ "name": "Beak Gauntlets", "size": 0.55, "worn": "hands", "grip": 0.56, "follows": "forearm", "tilt": 10 }
+{ "name": "Beak Gauntlets", "size": 0.6, "yaw": -90, "worn": "hands", "grip": 0.57, "gripHeight": 0.19, "tilt": 10, "follows": "forearm" }

@@ -83,8 +83,9 @@ of `skill category` 5 (Unarmed) shows on the arms whether or not the character f
 | --- | --- | --- |
 | `worn` | none | `hands` (one copy on each), `right hand` or `left hand` |
 | `grip` | `0.5` | where the palm sits along the model's length, 0 at its fist end and 1 at its arm opening |
+| `gripHeight` | `0.5` | the height on the model the hand bone runs through, 0 at its base and 1 at its top. The hand lies below the bone: its back about 0.2 units above it, its palm 0.7 below (**Observed**, `human_male.mesh`) |
 | `follows` | `hand` | `hand`: the part past the wrist bends with it (knuckles, claws). `forearm`: the whole model stays on the arm's line when the wrist bends (a blade along the arm, as in a palm strike) |
-| `tilt` | `0` | degrees the model is turned about the wrist, its fist end towards the back of the hand (negative: the palm); tilt it up so a modelled handle sits in the closed hand |
+| `tilt` | `0` | degrees the model is turned about the palm's centre, its fist end towards the back of the hand (negative: the palm), to lay the sleeve along the forearm |
 
 - Model it lying along X: what sticks out past the knuckles towards -X, the arm opening towards +X, the back of the hand up (+Y). `yaw`
   turns it first.

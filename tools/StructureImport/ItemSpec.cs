@@ -41,16 +41,28 @@ public sealed class ItemSpec
     public float Grip { get; set; } = 0.5f;
 
     /// <summary>
+    /// For a worn item: where the palm sits up the model, 0 at its base and 1 at its top; for a gauntlet with a handle, the hollow the fist
+    /// closes in.
+    /// </summary>
+    public float GripHeight { get; set; } = 0.5f;
+
+    /// <summary>
     /// For a worn item: the bone it moves with. <c>hand</c> bends with the wrist (knuckles, claws over the fingers); <c>forearm</c> stays on the
     /// arm's line when the wrist bends (a blade along the arm, a gauntlet held straight by its sleeve).
     /// </summary>
     public string Follows { get; set; } = "hand";
 
     /// <summary>
-    /// For a worn item: degrees it is tilted about the wrist, its fist end towards the back of the hand (negative: towards the palm), so a
-    /// modelled handle can sit in the closed hand instead of the fingers passing through the model.
+    /// For a worn item: degrees it is tilted about the palm's centre, its fist end towards the back of the hand (negative: towards the palm), so
+    /// the sleeve lies along the forearm when the grip is not on the model's long axis.
     /// </summary>
     public float Tilt { get; set; }
+
+    /// <summary>
+    /// The worn settings together.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public WornFit Fit => new(Grip, GripHeight, Tilt, Follows == "forearm");
 
     /// <summary>
     /// The values <see cref="Worn"/> takes.
@@ -102,6 +114,7 @@ public sealed class ItemSpec
             : !float.IsFinite(Yaw) ? "yaw must be a number"
             : Worn is not null && !WornValues.Contains(Worn) ? $"worn must be one of {string.Join(", ", WornValues)}"
             : !(Grip is >= 0 and <= 1) ? "grip must be a number from 0 to 1"
+            : !(GripHeight is >= 0 and <= 1) ? "gripHeight must be a number from 0 to 1"
             : !(Tilt is >= -90 and <= 90) ? "tilt must be a number of degrees from -90 to 90"
             : !FollowsValues.Contains(Follows) ? $"follows must be one of {string.Join(", ", FollowsValues)}"
             : TextureSize is < 4 or > StructureSpec.MaxTextureSize || (TextureSize & (TextureSize - 1)) != 0
