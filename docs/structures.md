@@ -96,6 +96,8 @@ of `skill category` 5 (Unarmed) shows on the arms whether or not the character f
 - Each copy sits in its hand bone's frame, so the model's top stays on the back of both hands (the left one is the right turned about the arm,
   not mirrored). The palm's centre is 0.7 units past the wrist (**Observed**: `human_male.mesh`'s hand reaches 1.8 units); vertices pass from
   the forearm's weight to the hand's within 0.3 units of the wrist (`follows: forearm`: all on the forearm).
+- A model that encloses the fist can hide the wearer's hands: set the WEAPON's bool `hide hands` (engine `docs/characters.md` "Worn
+  unarmed weapons").
 
 ### Inventory icon
 

@@ -16,7 +16,7 @@ public sealed class BeakGauntletsTests
     {
         var weapon = new FcsRecord { StringId = BeakGauntlets.Weapon, RecordType = FcsRecordType.Weapon, Name = BeakGauntlets.Name };
 
-        BeakGauntlets.Fill(weapon, Fists(), hasMaterial: true);
+        BeakGauntlets.Fill(weapon, TestData.Fists(), hasMaterial: true);
 
         Assert.Equal(5, weapon.Ints["skill category"]);
         Assert.Equal(18, weapon.Ints["length"]);
@@ -34,7 +34,7 @@ public sealed class BeakGauntletsTests
     {
         var weapon = new FcsRecord { StringId = BeakGauntlets.Weapon, RecordType = FcsRecordType.Weapon, Name = BeakGauntlets.Name };
 
-        BeakGauntlets.Fill(weapon, Fists(), hasMaterial: false);
+        BeakGauntlets.Fill(weapon, TestData.Fists(), hasMaterial: false);
 
         Assert.False(weapon.References.ContainsKey("material"));
     }
@@ -42,7 +42,7 @@ public sealed class BeakGauntletsTests
     [Fact]
     public void The_names_match_what_the_import_writes_for_the_model()
     {
-        string folder = Path.Combine(RepoRoot(), "WayOfTheFist", "ItemModels");
+        string folder = Path.Combine(TestData.RepoRoot(), "WayOfTheFist", "ItemModels");
         using var ids = JsonDocument.Parse(File.ReadAllText(Path.Combine(folder, "ids.json")));
         using var spec = JsonDocument.Parse(File.ReadAllText(Path.Combine(folder, "beak-gauntlet.json")));
 
@@ -80,7 +80,7 @@ public sealed class BeakGauntletsTests
     public void The_footprint_fits_both_weapon_slots_upright()
     {
         var weapon = new FcsRecord { StringId = BeakGauntlets.Weapon, RecordType = FcsRecordType.Weapon, Name = BeakGauntlets.Name };
-        BeakGauntlets.Fill(weapon, Fists(), hasMaterial: true);
+        BeakGauntlets.Fill(weapon, TestData.Fists(), hasMaterial: true);
 
         int width = weapon.Ints["inventory footprint width"];
         int height = weapon.Ints["inventory footprint height"];
@@ -95,11 +95,11 @@ public sealed class BeakGauntletsTests
     [Fact]
     public void The_icon_is_named_as_the_games_saved_pictures_and_shaped_as_the_footprint()
     {
-        string path = Path.Combine(RepoRoot(), "WayOfTheFist", "icons", BeakGauntlets.Icon);
+        string path = Path.Combine(TestData.RepoRoot(), "WayOfTheFist", "icons", BeakGauntlets.Icon);
 
         var ids = Meitou.Data.Gameplay.ItemIconCache.Parse(Path.GetFileNameWithoutExtension(path));
         Assert.Equal((BeakGauntlets.Weapon, BeakGauntlets.Material, ""), ids);
-        var (width, height) = PngSize(path);
+        var (width, height) = TestData.PngSize(path);
         Assert.Equal(BeakGauntlets.FootprintWidth * height, BeakGauntlets.FootprintHeight * width);
     }
 
@@ -115,50 +115,4 @@ public sealed class BeakGauntletsTests
         Height = BeakGauntlets.FootprintHeight,
         Rotated = rotated,
     };
-
-    /// <summary>
-    /// A PNG's width and height, from its IHDR chunk.
-    /// </summary>
-    static (int Width, int Height) PngSize(string path)
-    {
-        byte[] head = File.ReadAllBytes(path)[16..24];
-        int width = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(head);
-        int height = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(head.AsSpan(4));
-        return (width, height);
-    }
-
-    /// <summary>
-    /// The game's <c>FISTS</c>, with the base data's length, indoors bonus and multipliers.
-    /// </summary>
-    static GameRecord Fists()
-    {
-        var fists = new FcsRecord { StringId = BeakGauntlets.Fists, RecordType = FcsRecordType.Weapon, Name = "FISTS" };
-        fists.Ints["skill category"] = 5;
-        fists.Ints["length"] = 18;
-        fists.Ints["indoors mod"] = 8;
-        fists.Floats["cut damage multiplier"] = 1;
-        fists.Floats["bleed mult"] = 0.05f;
-        fists.Filenames["mesh"] = "";
-
-        string path = Path.Combine(Directory.CreateTempSubdirectory("wayofthefist").FullName, "test.mod");
-        var file = new FcsFile();
-        file.Records.Add(fists);
-        FcsWriter.WriteFile(file, path);
-        var order = new LoadOrder();
-        order.Entries.Add(new LoadOrderEntry("test.mod", path));
-        return GameDatabase.Load(order).Find(BeakGauntlets.Fists)!;
-    }
-
-    /// <summary>
-    /// The repo's root: the first folder above the test's output that holds README.md.
-    /// </summary>
-    static string RepoRoot()
-    {
-        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "README.md"))) return dir.FullName;
-        }
-
-        throw new DirectoryNotFoundException("No README.md above " + AppContext.BaseDirectory);
-    }
 }
